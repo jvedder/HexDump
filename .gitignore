@@ -1,0 +1,7 @@
+#ignore the Setting Folder and Files
+/.settings/
+.classpath
+.project
+
+#ignore the build output folder
+/bin/
