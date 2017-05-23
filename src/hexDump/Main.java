@@ -29,22 +29,30 @@ public class Main
         else if ((args.length == 2) && args[0].equals("-i"))
         {
             inFilename = args[1];
-            hexInlineFile(false);
+            hexInlineFile(false, false);
         }
         else if ((args.length == 2) && args[0].equals("-c"))
         {
             inFilename = args[1];
-            hexInlineFile(true);
+            hexInlineFile(true, false);
+        }
+        else if ((args.length == 2) && args[0].equals("-s"))
+        {
+            inFilename = args[1];
+            hexInlineFile(true, true);
         }
         else
         {
-            System.err.println("HexDump.jar V1.1");
-            System.err.println("Usage:");
-            System.err.println("  HexDump.jar [-8|-i|-c] filename");
-            System.err.println("options:");
-            System.err.println("  -8 = list 8 bytes/line instead of 16");
-            System.err.println("  -i = inline the hex data");
-            System.err.println("  -c = inline the hex data, showing [CR] and [LF]");
+            System.err.println( );
+            System.err.println("HexDump.jar V1.2");
+            System.err.println( );
+            System.err.println("  Usage:");
+            System.err.println("    HexDump.jar [-8|-i|-c] filename");
+            System.err.println("  options:");
+            System.err.println("    -8 = list 8 bytes/line instead of 16");
+            System.err.println("    -i = inline the hex data");
+            System.err.println("    -c = inline the hex data, showing [CR] and [LF]");
+            System.err.println("    -s = inline the hex data, showing [CR], [LF], and spaces/tabs");
         }
         return;
     }
@@ -115,7 +123,7 @@ public class Main
         }
     }
 
-    private static void hexInlineFile(boolean showCrLf) throws IOException
+    private static void hexInlineFile(boolean showCrLf, boolean showSpaces) throws IOException
     {
         BUFFER_SIZE = 4 * 1024; // 4K buffer
 
@@ -141,7 +149,7 @@ public class Main
                 {
                     byte b = buffer[i];
                     
-                    if (b == 0x0D)
+                    if (b == 0x0D) 
                     {
                         if (showCrLf) System.out.print("[CR]");
                     }
@@ -151,6 +159,14 @@ public class Main
                         System.out.println();
 
                     }
+                    else if (b == 0x09)
+                    {
+                        System.out.write(showSpaces ? 0x3E : 0x09); 
+                    }
+                    else if (b == 0x20)
+                    {
+                        System.out.write(showSpaces ? 0x2E : 0x20); 
+                    }                   
                     else if ((b < 0x20) || (b > 0x7e))
                     {
                         System.out.print("[");
