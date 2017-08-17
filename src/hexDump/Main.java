@@ -11,6 +11,13 @@ public class Main
 
     private static int BUFFER_SIZE = 16;
     private static String inFilename = "";
+    
+    private static final byte ASCII_CR = 0x0D;
+    private static final byte ASCII_LF = 0x0A;
+    private static final byte ASCII_TAB = 0x09;
+    private static final byte ASCII_SPACE = 0x20;
+    private static final byte ASCII_PERIOD = 0x2E;
+    
 
     public static void main(String[] args) throws IOException
     {
@@ -44,7 +51,7 @@ public class Main
         else
         {
             System.err.println( );
-            System.err.println("HexDump.jar V1.2");
+            System.err.println("HexDump.jar V1.3");
             System.err.println( );
             System.err.println("  Usage:");
             System.err.println("    HexDump.jar [-8|-i|-c] filename");
@@ -149,24 +156,42 @@ public class Main
                 {
                     byte b = buffer[i];
                     
-                    if (b == 0x0D) 
+                    if (b == ASCII_CR) 
                     {
                         if (showCrLf) System.out.print("[CR]");
                     }
-                    else if (b == 0x0A)
+                    else if (b == ASCII_LF)
                     {
                         if (showCrLf) System.out.print("[LF]");
                         System.out.println();
 
                     }
-                    else if (b == 0x09)
+                    else if (b == ASCII_TAB)
                     {
-                        System.out.write(showSpaces ? 0x3E : 0x09); 
+                        if (showSpaces)
+                        {
+                            System.out.print("[TAB]");
+                        }
+                        else
+                        {
+                            System.out.write(b);
+                        }
                     }
-                    else if (b == 0x20)
+                    else if (b == ASCII_SPACE)
                     {
-                        System.out.write(showSpaces ? 0x2E : 0x20); 
-                    }                   
+                        System.out.write(showSpaces ? ASCII_PERIOD : ASCII_SPACE); 
+                    }
+                    else if (b == ASCII_PERIOD)
+                    {
+                        if (showSpaces)
+                        {
+                           System.out.print("[.]");
+                        }
+                        else
+                        {
+                            System.out.write(ASCII_PERIOD);
+                        }                    
+                    }
                     else if ((b < 0x20) || (b > 0x7e))
                     {
                         System.out.print("[");
