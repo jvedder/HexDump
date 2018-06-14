@@ -25,13 +25,13 @@ public class Main
         if (args.length == 1)
         {
             inFilename = args[0];
-            hexDumpFile();
+            hexDumpFile( );
         }
         else if ((args.length == 2) && args[0].equals("-8"))
         {
             BUFFER_SIZE = 8;
             inFilename = args[1];
-            hexDumpFile();
+            hexDumpFile( );
         }
         else if ((args.length == 2) && args[0].equals("-i"))
         {
@@ -48,10 +48,15 @@ public class Main
             inFilename = args[1];
             hexInlineFile(true, true);
         }
+        else if ((args.length == 2) && args[0].equals("-p"))
+        {
+            inFilename = args[1];
+            showPrintable( );
+        }
         else
         {
             System.err.println( );
-            System.err.println("HexDump.jar V1.3");
+            System.err.println("HexDump.jar V1.4");
             System.err.println( );
             System.err.println("  Usage:");
             System.err.println("    HexDump.jar [-8|-i|-c] filename");
@@ -60,6 +65,7 @@ public class Main
             System.err.println("    -i = inline the hex data");
             System.err.println("    -c = inline the hex data, showing [CR] and [LF]");
             System.err.println("    -s = inline the hex data, showing [CR], [LF], and spaces/tabs");
+            System.err.println("    -p = show only printable strings");
         }
         return;
     }
@@ -223,6 +229,76 @@ public class Main
             if (in != null) in.close();
         }
     }
+
+
+    private static void showPrintable() throws IOException
+    {
+        BUFFER_SIZE = 4 * 1024; // 4K buffer
+
+        // Show complete file path
+        Path inFilePath = Paths.get(inFilename);
+        System.out.println();
+        System.out.println("File: " + inFilePath.toAbsolutePath());
+        System.out.println();
+
+        // open file as a stream of bytes
+        FileInputStream in = new FileInputStream(inFilename);
+
+        // output file contents
+        try
+        {
+            int bytesRead = 0;
+            int totalBytesRead = 0;
+            boolean lineStarted = false;
+            byte[] buffer = new byte[BUFFER_SIZE];
+            while ((bytesRead = in.read(buffer)) != -1)
+            {
+                totalBytesRead += bytesRead;
+                for (int i = 0; i < bytesRead; i++)
+                {
+                    byte b = buffer[i];
+                    
+                    if ((b == ASCII_LF) && lineStarted)
+                    {
+                        System.out.println();
+                        lineStarted = false;
+                    }
+                    if ((b == 0x00) && lineStarted)
+                    {
+                        System.out.println();
+                        lineStarted = false;
+                    }
+                    else if ((0x20 <= b) && (b <= 0x7f))
+                    {
+                        System.out.write(b);
+                        lineStarted = true;
+                    }
+                    else
+                    {
+                        // ignore this byte
+                    }
+                }
+            }
+
+            // show file size
+            System.out.println();
+            System.out.print("Length: ");
+            System.out.print(totalBytesRead);
+            System.out.print(" (0x");
+            System.out.print(String.format("%04X", totalBytesRead));
+            System.out.println(") Bytes.");
+
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            if (in != null) in.close();
+        }
+    }
+
 
     private static String bufferToHex(byte[] buffer, int size)
     {
